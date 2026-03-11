@@ -1,7 +1,6 @@
 import { useState, useEffect, useReducer, FormEvent } from 'react'
 import Dashboard from './Dashboard'
 import './App.css'
-import Dashboard from './Dashboard' // ← Импорт компонента Dashboard
 
 const STORAGE_KEY = 'api_key'
 
