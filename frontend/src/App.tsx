@@ -1,6 +1,7 @@
 import { useState, useEffect, useReducer, FormEvent } from 'react'
 import Dashboard from './Dashboard'
 import './App.css'
+import Dashboard from './Dashboard' // ← Импорт компонента Dashboard
 
 const STORAGE_KEY = 'api_key'
 
@@ -42,6 +43,9 @@ function App() {
   const [draft, setDraft] = useState('')
   const [currentPage, setCurrentPage] = useState<Page>('items')
   const [fetchState, dispatch] = useReducer(fetchReducer, { status: 'idle' })
+  
+  // ← Состояние для переключения страниц
+  const [currentPage, setCurrentPage] = useState<'items' | 'dashboard'>('items')
 
   useEffect(() => {
     if (!token) return
@@ -75,6 +79,7 @@ function App() {
     setDraft('')
   }
 
+  // Экран авторизации (без изменений)
   if (!token) {
     return (
       <form className="token-form" onSubmit={handleConnect}>
@@ -91,6 +96,7 @@ function App() {
     )
   }
 
+  // ← Основной экран с навигацией
   return (
     <div>
       <header className="app-header">
