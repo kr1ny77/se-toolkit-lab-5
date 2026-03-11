@@ -1,4 +1,5 @@
 import { useState, useEffect, useReducer, FormEvent } from 'react'
+import Dashboard from './Dashboard'
 import './App.css'
 import Dashboard from './Dashboard' // ← Импорт компонента Dashboard
 
@@ -33,11 +34,14 @@ function fetchReducer(_state: FetchState, action: FetchAction): FetchState {
   }
 }
 
+type Page = 'items' | 'dashboard'
+
 function App() {
   const [token, setToken] = useState(
     () => localStorage.getItem(STORAGE_KEY) ?? '',
   )
   const [draft, setDraft] = useState('')
+  const [currentPage, setCurrentPage] = useState<Page>('items')
   const [fetchState, dispatch] = useReducer(fetchReducer, { status: 'idle' })
   
   // ← Состояние для переключения страниц
@@ -96,71 +100,57 @@ function App() {
   return (
     <div>
       <header className="app-header">
-        <h1>SE Toolkit Lab 5</h1>
-        
-        {/* ← Навигация между страницами */}
-        <nav style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-          <button 
+        <h1>{currentPage === 'items' ? 'Items' : 'Dashboard'}</h1>
+        <nav className="nav-buttons">
+          <button
+            className={currentPage === 'items' ? 'active' : ''}
             onClick={() => setCurrentPage('items')}
-            style={{ 
-              fontWeight: currentPage === 'items' ? 'bold' : 'normal',
-              textDecoration: currentPage === 'items' ? 'underline' : 'none'
-            }}
           >
             Items
           </button>
-          <button 
+          <button
+            className={currentPage === 'dashboard' ? 'active' : ''}
             onClick={() => setCurrentPage('dashboard')}
-            style={{ 
-              fontWeight: currentPage === 'dashboard' ? 'bold' : 'normal',
-              textDecoration: currentPage === 'dashboard' ? 'underline' : 'none'
-            }}
           >
             Dashboard
           </button>
         </nav>
-
         <button className="btn-disconnect" onClick={handleDisconnect}>
           Disconnect
         </button>
       </header>
 
-      {/* ← Условный рендеринг контента */}
-      <main>
-        {currentPage === 'items' ? (
-          // Страница Items (твой существующий код)
-          <>
-            {fetchState.status === 'loading' && <p>Loading...</p>}
-            {fetchState.status === 'error' && <p>Error: {fetchState.message}</p>}
+      {currentPage === 'dashboard' ? (
+        <Dashboard />
+      ) : (
+        <>
+          {fetchState.status === 'loading' && <p>Loading...</p>}
+          {fetchState.status === 'error' && <p>Error: {fetchState.message}</p>}
 
-            {fetchState.status === 'success' && (
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>ItemType</th>
-                    <th>Title</th>
-                    <th>Created at</th>
+          {fetchState.status === 'success' && (
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>ItemType</th>
+                  <th>Title</th>
+                  <th>Created at</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fetchState.items.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    <td>{item.type}</td>
+                    <td>{item.title}</td>
+                    <td>{item.created_at}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {fetchState.items.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.id}</td>
-                      <td>{item.type}</td>
-                      <td>{item.title}</td>
-                      <td>{item.created_at}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </>
-        ) : (
-          // Страница Dashboard (новый компонент)
-          <Dashboard />
-        )}
-      </main>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
     </div>
   )
 }
